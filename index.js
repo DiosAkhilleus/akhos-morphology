@@ -1,21 +1,16 @@
 // https://greekwordnet.chs.harvard.edu/api
 
-async function getMorph (lemma) {
+async function getMorph (lemma) { // fetches the given greek string from the morphology service
     const greekData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=grc&engine=morpheusgrc&word=${lemma}`, {mode: 'cors'});
     const dataOut = await greekData.json();
-    const headWord = dataOut.RDF.Annotation.Body.rest.entry.dict.hdwd.$;
+    console.log(dataOut);
     const inflections = dataOut.RDF.Annotation.Body.rest.entry.infl;
+    const headWord = dataOut.RDF.Annotation.Body.rest.entry.dict.hdwd.$;
     const states = getInflectionStates(inflections);
-    console.log(headWord, states);
+
+    displayMorph(headWord, states);
 };
-
-async function getDict () {
-    const dictEntry = await fetch(`http://www.perseus.tufts.edu/hopper/morph?l=prose%2Ffh&la=greek`, {mode: 'cors'});
-    const entryOut = await dictEntry.json();
-    console.log(entryOut);
-}
-
-const getInflectionStates = (inflectArr) => {
+const getInflectionStates = (inflectArr) => { // returns an array in which each element is itself an array of the dialect type and inflection pattern
     
     if(Array.isArray(inflectArr)){
         let combinedArr = [];
@@ -47,10 +42,18 @@ const getInflectionStates = (inflectArr) => {
             return [['Attic'], [`${person} ${number} ${tense} ${voice} ${mood}`]];
         }
     }
-}
-
+};
 const setHead = (head) => {
     console.log(head);
-}
+};
+async function getDict () {
+    const dictEntry = await fetch(`http://www.perseus.tufts.edu/hopper/morph?l=prose%2Ffh&la=greek`, {mode: 'cors'});
+    const entryOut = await dictEntry.json();
+    console.log(entryOut);
+};
+const displayMorph = (headword, states) => {
+    console.log(`Head-Word: ${headword}`);
+    console.log(states);
+};
 
 //https://crossorigin.me/
