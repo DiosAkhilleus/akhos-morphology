@@ -1,3 +1,6 @@
+
+// const { Parser } = require('urn-parser');
+
 // https://greekwordnet.chs.harvard.edu/api
 
 async function getMorph (lemma) { // fetches the given greek string from the morphology service
@@ -47,7 +50,7 @@ const setHead = (head) => {
     console.log(head);
 };
 async function getDict () {
-    const dictEntry = await fetch(`http://www.perseus.tufts.edu/hopper/morph?l=prose%2Ffh&la=greek`, {mode: 'cors'});
+    const dictEntry = await fetch(`urn:cite2:hmt:lsj.chicago_md:n71450`, {mode: 'cors'});
     const entryOut = await dictEntry.json();
     console.log(entryOut);
 };
@@ -55,5 +58,12 @@ const displayMorph = (headword, states) => {
     console.log(`Head-Word: ${headword}`);
     console.log(states);
 };
+
+// function parseURN() {
+//     const parsed = Parser.parse('urn:cite2:hmt:lsj.chicago_md:n71450');
+//     console.log(parsed);
+// }
+document.getElementById('luo').addEventListener('click', getMorph);
+
 
 //https://crossorigin.me/

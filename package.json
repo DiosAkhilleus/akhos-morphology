@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "urn-parser": "^1.0.1"
+  },
+  "devDependencies": {
+    "webpack": "^5.25.1",
+    "webpack-cli": "^4.5.0"
+  }
+}
