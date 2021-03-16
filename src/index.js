@@ -13,3 +13,5 @@ let form = document.getElementById('lemmaform');
 form.addEventListener('submit', handleForm);
 form.addEventListener('submit', getFull);
 
+getMorph('λόγος');
+
