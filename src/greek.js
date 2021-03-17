@@ -141,10 +141,10 @@ async function getDict (lemma) {
     const entryOut = await dictEntry.json();
     
     let def = entryOut.other[0].definitions[0].definition;
-    
-    document.getElementById('search').innerHTML = def;
+     
+    document.getElementById('greek').innerHTML = def;
 
-    let titles = document.querySelectorAll('a');
+    let titles = document.querySelectorAll('#greek a');
     let sumDef = `${titles[0].textContent}`;
     for(let i = 1; i < titles.length; i++){
         sumDef = sumDef + `, ${titles[i].textContent}`;
