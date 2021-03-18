@@ -22,14 +22,15 @@ async function getGreekMorph (lemma) { // fetches the given greek string from th
                 type = dataOut.RDF.Annotation.Body[i].rest.entry.infl.pofs.$;
             }
             const inflections = dataOut.RDF.Annotation.Body[i].rest.entry.infl;
-            const headWord = dataOut.RDF.Annotation.Body[i].rest.entry.dict.hdwd.$;
+            let headWord = dataOut.RDF.Annotation.Body[i].rest.entry.dict.hdwd.$;
+            let fixedHead = headWord.replace(/[1-9]/g, '');
             const inflect = getGreekInflections(inflections, type);
-            const dict = await getDict(headWord);
+            const dict = await getDict(fixedHead);
 
             if(inflect === undefined){
-                subArr = [headWord, type, dict];
+                subArr = [fixedHead, type, dict];
             } else {
-                subArr = [headWord, type, inflect, dict];
+                subArr = [fixedHead, type, inflect, dict];
             }
             returnArr.push(subArr);
         }
@@ -43,14 +44,15 @@ async function getGreekMorph (lemma) { // fetches the given greek string from th
         }
     
         const inflections = dataOut.RDF.Annotation.Body.rest.entry.infl;
-        const headWord = dataOut.RDF.Annotation.Body.rest.entry.dict.hdwd.$;
+        let headWord = dataOut.RDF.Annotation.Body.rest.entry.dict.hdwd.$;
+        let fixedHead = headWord.replace(/[1-9]/g, '');
         const inflect = getGreekInflections(inflections, type);
-        const dict = await getDict(headWord);
+        const dict = await getDict(fixedHead);
 
         if(inflect === undefined){
-            return [headWord, type, dict];
+            return [fixedHead, type, dict];
         } else {
-            return [headWord, type, inflect, dict];
+            return [fixedHead, type, inflect, dict];
         }   
     }
 };
@@ -197,7 +199,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
 async function getDict (lemma) {
     const dictEntry = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${lemma}`, {mode: 'cors'});
     const entryOut = await dictEntry.json();
-    
+    console.log(entryOut);
     
     if(entryOut.other !== undefined){
         let def;
@@ -215,7 +217,15 @@ async function getDict (lemma) {
         let titles = document.querySelectorAll('#greek a');
         
         let sumDef;
-            sumDef = `${titles[0].textContent}`;
+        for(let i = 0; i < titles.length; i++){
+            if(i === 0){
+                sumDef = `${titles[i].textContent}`;
+            } else {
+                sumDef = sumDef + `, ${titles[i].textContent}`;
+            }
+            
+        }
+            
         return sumDef;
     }
     return "Definition Not Found";
