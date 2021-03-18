@@ -199,7 +199,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
 async function getDict (lemma) {
     const dictEntry = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${lemma}`, {mode: 'cors'});
     const entryOut = await dictEntry.json();
-    console.log(entryOut);
+    
     
     if(entryOut.other !== undefined){
         let def;

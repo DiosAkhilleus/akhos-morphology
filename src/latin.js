@@ -1,7 +1,7 @@
 import { setUndefined } from "./dom";
 
 async function getLatinMorph (lemma) {
-    const latinData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=lat&engine=morpheuslat&word=${lemma}`)
+    const latinData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=lat&engine=morpheuslat&word=${lemma}`, {mode: 'cors'})
     const dataOut = await latinData.json();
     const body = dataOut.RDF.Annotation.Body;
 
@@ -23,7 +23,7 @@ async function getLatinMorph (lemma) {
             
             let setArr = [fixedHead, type, inflect, dict]
             let check = false; 
-            console.log(setArr);
+            //console.log(setArr);
             
             for(let i = 0; i < retArr.length; i++) {
                     if(JSON.stringify(setArr) === JSON.stringify(retArr[i])){
@@ -41,7 +41,7 @@ async function getLatinMorph (lemma) {
         const inflections = body.rest.entry.infl;
         let headWord = body.rest.entry.dict.hdwd.$;
         let fixedHead = headWord.replace(/[1-9]/g, '');
-        console.log(fixedHead);
+        //console.log(fixedHead);
         const type = body.rest.entry.dict.pofs.$;
         const inflect = getLatinInflections(inflections, type);
         const dict = await getDef(fixedHead);
@@ -72,8 +72,7 @@ const getLatinInflections = (inflections, type) => {
             returnArr = [`${declension} declension`, `${gender} ${latCase} ${number}`];
             return returnArr;
         }
-    }
-    if(type === 'verb') {
+    } else if(type === 'verb') {
         if(Array.isArray(inflections)){
             for(let i = 0; i < inflections.length; i++){
                 if(inflections[i].mood.$ === 'infinitive'){
@@ -111,8 +110,7 @@ const getLatinInflections = (inflections, type) => {
                 return returnArr;
             }
         }
-    }
-    if(type === 'adjective') {
+    } else if(type === 'adjective') {
         if(Array.isArray(inflections)) {
             for(let i = 0; i < inflections.length; i++) {
                 if(inflections[i].gend.$ === 'adverbial') {
@@ -146,6 +144,8 @@ const getLatinInflections = (inflections, type) => {
                 return returnArr;
             }
         } 
+    } else if(type === 'adverb'){
+        return ['not inflected'];
     }
 }
 

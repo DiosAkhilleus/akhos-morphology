@@ -8,7 +8,7 @@ async function getGreek () {
     let lemma = formData.value;
     
     let lemmaArr = lemma.split(' ');
-    console.log(lemmaArr);
+    
     if(lemmaArr.length === 1){
         const morph = await getGreekMorph(lemmaArr[0]);
         console.log(morph); 
@@ -26,7 +26,7 @@ async function getLatin () {
     let formData = document.getElementById('latin-title');
     let lemma = formData.value;
     let lemmaArr = lemma.split(' ');
-    console.log(lemmaArr);
+    
     if(lemmaArr.length === 1){
         const morph = await getLatinMorph(lemmaArr[0]);
         console.log(morph); 
@@ -46,5 +46,3 @@ grkForm.addEventListener('submit', handleForm);
 grkForm.addEventListener('submit', getGreek);
 latForm.addEventListener('submit', handleForm);
 latForm.addEventListener('submit', getLatin);
-
-
