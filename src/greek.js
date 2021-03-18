@@ -9,7 +9,7 @@ async function getGreekMorph (lemma) { // fetches the given greek string from th
         setUndefined();
     }
 
-    console.log(dataOut);
+    //console.log(dataOut);
 
     let type;
     let returnArr = [];
@@ -87,7 +87,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
                 return ['attic', `${person} person ${number} ${tense} ${voice} ${mood}`];
             }
         }
-    } if (type === 'verb participle'){
+    } else if (type === 'verb participle'){
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -117,7 +117,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
                 return ['attic', `${gender} ${number} ${tense} ${voice} ${mood}`];
             }
         }
-    } if (type === 'noun'){
+    } else if (type === 'noun'){
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -145,7 +145,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         }else {
             return ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
         }
-    } if (type === 'adjective'){
+    } else if (type === 'adjective'){
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -173,11 +173,31 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         }else {
             return ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
         }
+    } else if (type === 'pronoun'){
+        if(Array.isArray(inflectArr)){
+            let combinedArr = [];
+                for(let i = 0; i < inflectArr.length; i++){
+                    let person = inflectArr[i].pers.$;
+                    let gender = inflectArr[i].gend.$;
+                    let nCase = inflectArr[i].case.$;
+                    let number = inflectArr[i].num.$;
+
+                        combinedArr[i] = [`${person} person ${gender} ${nCase} ${number}`];
+                    
+                }
+            return combinedArr;
+        }
+        let person = inflectArr.pers.$;
+        let gender = inflectArr.gend.$;
+        let nCase = inflectArr.case.$;
+        let number = inflectArr.num.$;
+        return [`${person} person ${gender} ${nCase} ${number}`];
     }
 };
 async function getDict (lemma) {
     const dictEntry = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${lemma}`, {mode: 'cors'});
     const entryOut = await dictEntry.json();
+    
     
     if(entryOut.other !== undefined){
         let def;
@@ -189,18 +209,13 @@ async function getDict (lemma) {
                 def = def + defArr[i].definition; 
             }
         }
+        
         document.getElementById('greek').innerHTML = def;
     
         let titles = document.querySelectorAll('#greek a');
+        
         let sumDef;
-        if(Array.isArray(titles)) {
             sumDef = `${titles[0].textContent}`;
-            for(let i = 1; i < titles.length; i++){
-                sumDef = sumDef + `, ${titles[i].textContent}`;
-            }
-        } else {
-            sumDef = `${titles.textContent}`
-        }
         return sumDef;
     }
     return "Definition Not Found";
