@@ -1,19 +1,26 @@
-import {  getMorph  } from './greek';
-import { getDef, getLatin } from './latin';
+import {  getGreekMorph  } from './greek';
+import { getLatinMorph } from './latin';
 
 function handleForm(event) {  event.preventDefault();  }
 
-async function getFull () {
-    let formData = document.querySelector('#lemmaform input');  
+async function getGreek () {
+    let formData = document.getElementById('greek-title');  
     let lemma = formData.value;
-    const morph = await getMorph(lemma);
+    const morph = await getGreekMorph(lemma);
     console.log(morph); 
 }
+async function getLatin () {
+    let formData = document.getElementById('latin-title');
+    let lemma = formData.value;
+    const morph = await getLatinMorph(lemma);
+    console.log(morph);
+}
 
-let form = document.getElementById('lemmaform');
-form.addEventListener('submit', handleForm);
-form.addEventListener('submit', getFull);
+let grkForm = document.getElementById('grk-form');
+let latForm = document.getElementById('lat-form');
+grkForm.addEventListener('submit', handleForm);
+grkForm.addEventListener('submit', getGreek);
+latForm.addEventListener('submit', handleForm);
+latForm.addEventListener('submit', getLatin);
 
-getLatin('viri');
-getDef('vir');
 
