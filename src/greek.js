@@ -192,9 +192,14 @@ async function getDict (lemma) {
         document.getElementById('greek').innerHTML = def;
     
         let titles = document.querySelectorAll('#greek a');
-        let sumDef = `${titles[0].textContent}`;
-        for(let i = 1; i < titles.length; i++){
-            sumDef = sumDef + `, ${titles[i].textContent}`;
+        let sumDef;
+        if(Array.isArray(titles)) {
+            sumDef = `${titles[0].textContent}`;
+            for(let i = 1; i < titles.length; i++){
+                sumDef = sumDef + `, ${titles[i].textContent}`;
+            }
+        } else {
+            sumDef = `${titles.textContent}`
         }
         return sumDef;
     }
