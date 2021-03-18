@@ -1,7 +1,14 @@
+import {  setUndefined  } from './dom';
+
 async function getGreekMorph (lemma) { // fetches the given greek string from the morphology service
     const greekData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=grc&engine=morpheusgrc&word=${lemma}`, {mode: 'cors'});
     const dataOut = await greekData.json();
     const body = dataOut.RDF.Annotation.Body;
+
+    if(body === undefined){
+        setUndefined();
+    }
+
     console.log(dataOut);
 
     let type;
@@ -121,9 +128,9 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
                     let declension = inflectArr[i].decl.$;
                     if(inflectArr[i].dial){
                         let dialect = inflectArr[i].dial.$;
-                        combinedArr[i] = [`${dialect}`, `${gender} ${nCase} ${number}, ${declension} declension`];
+                        combinedArr[i] = [`${dialect}`, `${gender} ${nCase} ${number}`, `${declension} declension`];
                     }else {
-                        combinedArr[i] = ['attic', `${gender} ${nCase} ${number}, ${declension} declension`];
+                        combinedArr[i] = ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
                     }
                 }
             return combinedArr;
@@ -134,9 +141,9 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         let declension = inflectArr.decl.$;
         if(inflectArr.dial){
             let dialect = inflectArr.dial.$;
-            return [`${dialect}`, `${gender} ${nCase} ${number}, ${declension} declension`];
+            return [`${dialect}`, `${gender} ${nCase} ${number}`, `${declension} declension`];
         }else {
-            return ['attic', `${gender} ${nCase} ${number}, ${declension} declension`];
+            return ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
         }
     } if (type === 'adjective'){
         if(Array.isArray(inflectArr)){
@@ -149,9 +156,9 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
                     let declension = inflectArr[i].decl.$;
                     if(inflectArr[i].dial){
                         let dialect = inflectArr[i].dial.$;
-                        combinedArr[i] = [`${dialect}`, `${gender} ${nCase} ${number}, ${declension} declension`];
+                        combinedArr[i] = [`${dialect}`, `${gender} ${nCase} ${number}`, `${declension} declension`];
                     }else {
-                        combinedArr[i] = ['attic', `${gender} ${nCase} ${number}, ${declension} declension`];
+                        combinedArr[i] = ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
                     }
                 }
             return combinedArr;
@@ -162,9 +169,9 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         let declension = inflectArr.decl.$;
         if(inflectArr.dial){
             let dialect = inflectArr.dial.$;
-            return [`${dialect}`, `${gender} ${nCase} ${number}, ${declension} declension`];
+            return [`${dialect}`, `${gender} ${nCase} ${number}`, `${declension} declension`];
         }else {
-            return ['attic', `${gender} ${nCase} ${number}, ${declension} declension`];
+            return ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
         }
     }
 };
