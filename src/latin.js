@@ -49,7 +49,6 @@ async function getLatinMorph (lemma) {
         return [fixedHead, type, inflect, dict];
     }
 }
-
 const getLatinInflections = (inflections, type) => {
     //console.log(inflections, type);
     let returnArr = [];
@@ -148,7 +147,6 @@ const getLatinInflections = (inflections, type) => {
         return ['not inflected'];
     }
 }
-
 async function getDef (lemma) {
     const latinDef = await fetch (`https://en.wiktionary.org/api/rest_v1/page/definition/${lemma}?redirect=true`);
     const defOut = await latinDef.json();
