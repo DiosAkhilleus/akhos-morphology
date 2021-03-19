@@ -251,7 +251,7 @@ async function getPerseusGreek(lemma) {
     dataAsJson = JSON.parse(convert.xml2json(textDat, {compact: true, spaces: 4}));
     console.log(dataAsJson);
     //need to do some pretty serious parsing here. This could take a while. 
-    return "Perseus Definition";
+    return "Middle Liddell Dict. Entry";
 }
 
 export {  getGreekMorph  };
