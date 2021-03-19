@@ -31,7 +31,7 @@ async function getGreekMorph (lemma) { //returns a full array of relevant inform
             const shortDict = await getWikiGreek(fixedHead);
             const longDict = await getPerseusGreek(fixedHead);
 
-            if(inflect === undefined){ //if no inflections present, returns array without inflections. may not be necessary once all types set in getGreekInflection();
+            if(inflect === undefined){ // iff word is not inflected, returns array without inflections (numerals, particles, etc.)
                 subArr = [fixedHead, type, shortDict, longDict];
             } else {
                 subArr = [fixedHead, type, inflect, shortDict, longDict];
@@ -54,7 +54,7 @@ async function getGreekMorph (lemma) { //returns a full array of relevant inform
         const shortDict = await getWikiGreek(fixedHead);
         const longDict = await getPerseusGreek(fixedHead);
 
-        if(inflect === undefined){ // same as if multiple headwords possible. may not be necessary
+        if(inflect === undefined){ // as before, if word is not inflected, returns array without inflections (numerals, particles, etc.)
             return [fixedHead, type, shortDict, longDict];
         } else {
             return [fixedHead, type, inflect, shortDict, longDict];
@@ -201,9 +201,31 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         let number = inflectArr.num.$;
         return [`${person} person ${gender} ${nCase} ${number}`];
     } else if (type === 'article') {
-
-    } else if (type === 'particle') {
-
+        if(Array.isArray(inflectArr)){
+            let combinedArr = [];
+                for(let i = 0; i < inflectArr.length; i++){
+                    
+                    let gender = inflectArr[i].gend.$;
+                    let nCase = inflectArr[i].case.$;
+                    let number = inflectArr[i].num.$;
+                    if(inflectArr[i].dial){
+                        let dialect = inflectArr[i].dial.$;
+                        combinedArr[i] = [`${dialect}`, `${gender} ${nCase} ${number}`];
+                    }else {
+                        combinedArr[i] = [`${gender} ${nCase} ${number}`];
+                    }
+                }
+            return combinedArr;
+        }
+        let gender = inflectArr.gend.$;
+        let nCase = inflectArr.case.$;
+        let number = inflectArr.num.$;
+        if(inflectArr.dial){
+            let dialect = inflectArr.dial.$;
+            return [`${dialect}`, `${gender} ${nCase} ${number}`];
+        }else {
+            return [`${gender} ${nCase} ${number}`];
+        }
     }
 };
 
@@ -214,7 +236,8 @@ async function getWikiGreek (lemma) { // fetches the wiktionary definition for
     
     if(entryOut.other !== undefined){
         let def;
-        let defArr = entryOut.other[0].definitions
+        let defArr = entryOut.other[0].definitions;
+        console.log(entryOut.other);
         if(entryOut.other[0].definitions.length = 1){
             def = entryOut.other[0].definitions[0].definition;
         } else {
@@ -244,7 +267,6 @@ async function getWikiGreek (lemma) { // fetches the wiktionary definition for
 
 async function getPerseusGreek(lemma) {
     const beta = greekToBetaCode(lemma);
-    console.log(beta);
     let dataAsJson = {};
     const data = await fetch(`http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0058%3Aentry%3D${beta}`);
     const textDat = await data.text();
