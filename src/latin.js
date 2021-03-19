@@ -11,7 +11,7 @@ async function getLatinMorph (lemma) {
     }
 
 
-    console.log(dataOut);
+    //console.log(dataOut);
     if(Array.isArray(body)) {
         let retArr = [];
         for(let i = 0; i < body.length; i++){
@@ -20,20 +20,27 @@ async function getLatinMorph (lemma) {
             let fixedHead = headWord.replace(/[1-9]/g, '');
             const type = body[i].rest.entry.dict.pofs.$;
             const inflect = getLatinInflections(inflections, type);
-            const dict = await getWikiLatin(fixedHead);
+            const shortDict = await getWikiLatin(fixedHead);
             const longDict = await getPerseusLatin(fixedHead);
-            
-            let setArr = [fixedHead, type, inflect, dict, longDict];
+            let subArr = [];
             let check = false; 
+
+            if(inflect === undefined){ // if word is not inflected, returns array without inflections (numerals, particles, etc.)
+                subArr = [fixedHead, type, shortDict, longDict];
+            } else {
+                subArr = [fixedHead, type, inflect, shortDict, longDict];
+            }
+            
             //console.log(setArr);
             
             for(let i = 0; i < retArr.length; i++) {
-                    if(JSON.stringify(setArr) === JSON.stringify(retArr[i])){
+                    if(JSON.stringify(subArr) === JSON.stringify(retArr[i])){
                         check = true;
                     }
             }
             if(check === false) {
-                retArr.push(setArr);
+                
+                retArr.push(subArr);
             }
         }
         
@@ -46,10 +53,14 @@ async function getLatinMorph (lemma) {
         //console.log(fixedHead);
         const type = body.rest.entry.dict.pofs.$;
         const inflect = getLatinInflections(inflections, type);
-        const dict = await getWikiLatin(fixedHead);
+        const shortDict = await getWikiLatin(fixedHead);
         const longDict = await getPerseusLatin(fixedHead);
-        
-        return [fixedHead, type, inflect, dict, longDict];
+
+        if(inflect === undefined){ // as before, if word is not inflected, returns array without inflections (numerals, particles, etc.)
+            return [fixedHead, type, shortDict, longDict];
+        } else {
+            return [fixedHead, type, inflect, shortDict, longDict];
+        }  
     }
 }
 const getLatinInflections = (inflections, type) => {
@@ -146,8 +157,6 @@ const getLatinInflections = (inflections, type) => {
                 return returnArr;
             }
         } 
-    } else if(type === 'adverb'){
-        return ['not inflected'];
     }
 }
 async function getWikiLatin (lemma) {
@@ -169,11 +178,25 @@ async function getWikiLatin (lemma) {
 async function getPerseusLatin(lemma) {
     let dataAsJson = {};
     const data = await fetch(`http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0060%3Aentry%3D${lemma}`);
-    const textDat = await data.text();
-    dataAsJson = JSON.parse(convert.xml2json(textDat));
-    console.log(dataAsJson);
-    //need to do some pretty serious parsing here. This could take a while.
-    return "Elementary Lewis Dict. Definition";
+    const textData = await data.text();
+
+    if (textData.indexOf('An Error Occurred') > -1){
+        const data1 = await fetch(`http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0060%3Aentry%3D${lemma}1`);
+        const textData1 = await data1.text();
+        if (textData1.indexOf('An Error Occurred') > -1){
+            return "Can't Find Entry";
+        } else {
+            dataAsJson = JSON.parse(convert.xml2json(textData1));
+            //console.log(dataAsJson);
+            return "Elementary Lewis Dict. Definition";
+        }
+    } else {
+        dataAsJson = JSON.parse(convert.xml2json(textData));
+        //console.log(dataAsJson);
+        //need to do some pretty serious parsing here. This could take a while.
+        return "Elementary Lewis Dict. Definition";
+    }
+
 }
 
 export {  getLatinMorph  }

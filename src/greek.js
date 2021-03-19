@@ -12,7 +12,7 @@ async function getGreekMorph (lemma) { //returns a full array of relevant inform
         setUndefined();
     }
 
-    console.log(dataOut);
+    //console.log(dataOut);
 
     let type;
     let returnArr = [];
@@ -237,7 +237,7 @@ async function getWikiGreek (lemma) { // fetches the wiktionary definition for
     if(entryOut.other !== undefined){
         let def;
         let defArr = entryOut.other[0].definitions;
-        console.log(entryOut.other);
+        //console.log(entryOut.other);
         if(entryOut.other[0].definitions.length = 1){
             def = entryOut.other[0].definitions[0].definition;
         } else {
@@ -269,11 +269,24 @@ async function getPerseusGreek(lemma) {
     const beta = greekToBetaCode(lemma);
     let dataAsJson = {};
     const data = await fetch(`http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0058%3Aentry%3D${beta}`);
-    const textDat = await data.text();
-    dataAsJson = JSON.parse(convert.xml2json(textDat, {compact: true, spaces: 4}));
-    console.log(dataAsJson);
-    //need to do some pretty serious parsing here. This could take a while. 
-    return "Middle Liddell Dict. Entry";
+    const textData = await data.text();
+
+    if (textData.indexOf('An Error Occurred') > -1) {
+        const data1 = await fetch(`http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0058%3Aentry%3D${beta}1`);
+        const textData1 = await data1.text();
+        if (textData1.indexOf('An Error Occurred') > -1) {
+            return "Can't Find Entry";
+        } else {
+            dataAsJson = JSON.parse(convert.xml2json(textData1, {compact: true, spaces: 4}));
+            //console.log(dataAsJson);
+            return "Middle Liddell Dict. Entry";
+        } 
+    } else {
+        dataAsJson = JSON.parse(convert.xml2json(textData, {compact: true, spaces: 4}));
+        //console.log(dataAsJson);
+        //need to do some pretty serious parsing here. This could take a while. 
+        return "Middle Liddell Dict. Entry";
+    }
 }
 
 export {  getGreekMorph  };
