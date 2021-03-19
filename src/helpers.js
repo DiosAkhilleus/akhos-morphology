@@ -1,4 +1,3 @@
-import { greekToBetaCode } from "beta-code-js";
 const convert = require('xml-js');
 
 function arraysEqual(a, b) {
