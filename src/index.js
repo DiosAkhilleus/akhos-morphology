@@ -1,5 +1,8 @@
 import {  getGreekMorph  } from './greek';
 import { getLatinMorph } from './latin';
+import {  parseSingleMorph, parseMultiMorph  } from './helpers';
+
+
 
 function handleForm(event) {  event.preventDefault();  }
 
@@ -11,14 +14,14 @@ async function getGreek () {
     
     if(lemmaArr.length === 1){
         const morph = await getGreekMorph(lemmaArr[0]);
-        console.log(morph); 
+        parseSingleMorph(morph);
     } else {
-        let allMorph = [];
+        let multiMorph = [];
         for(let i = 0; i < lemmaArr.length; i++){
             const subMorph = await getGreekMorph(lemmaArr[i]);
-            allMorph.push(subMorph);
+            multiMorph.push(subMorph);
         }
-        console.log(allMorph);
+        parseMultiMorph(multiMorph);
     }
     
 }
@@ -46,6 +49,10 @@ grkForm.addEventListener('submit', handleForm);
 grkForm.addEventListener('submit', getGreek);
 latForm.addEventListener('submit', handleForm);
 latForm.addEventListener('submit', getLatin);
+
+
+
+
 
 
 

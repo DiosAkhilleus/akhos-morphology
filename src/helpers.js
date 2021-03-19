@@ -1,3 +1,6 @@
+import { greekToBetaCode } from "beta-code-js";
+const convert = require('xml-js');
+
 function arraysEqual(a, b) {
     if (a === b) return true;
     if (a == null || b == null) return false;
@@ -14,19 +17,14 @@ function arraysEqual(a, b) {
     return true;
   }
 
-async function getXML () {
-    let x = new XMLHttpRequest();
-    x.open("GET", "http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0060%3Aentry%3Dfrequenter", true);
-    x.onreadystatechange = function () {
-        if (x.readyState == 4 && x.status == 200) {
-            let doc = x.responseXML;
-            console.log(doc);
-            let nodeList = doc.getElementsByTagName('text');
-            console.log(nodeList[0].innerHTML);
-            document.getElementById('xml').innerHTML = nodeList[0].innerHTML;
-        }
-    };
-x.send(null);
+const parseSingleMorph = (morph) => {
+    console.log("Single-Morph");
+    console.log(morph);
 } 
+
+const parseMultiMorph = (multiMorph) => {
+    console.log("Multi-Morph");
+    console.log(multiMorph);
+}
   
-  export { arraysEqual, getXML }
+  export { arraysEqual, parseSingleMorph, parseMultiMorph }

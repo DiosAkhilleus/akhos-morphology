@@ -1,13 +1,13 @@
 import {  setUndefined  } from './dom';
-import {  greekToBetaCode, betaCodeToGreek  } from 'beta-code-js';
+import {  greekToBetaCode  } from 'beta-code-js';
+const convert = require('xml-js');
 
-async function getGreekMorph (lemma) { // fetches the given greek string from the morphology service
+async function getGreekMorph (lemma) { //returns a full array of relevant information relating to the morphology, including the headword, part of speech, inflection possibilities, Wiktionary Def, and LSJ Def
+    // fetches the given greek string from the morphology service
     const greekData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=grc&engine=morpheusgrc&word=${lemma}`, {mode: 'cors'});
     const dataOut = await greekData.json();
     const body = dataOut.RDF.Annotation.Body;
-    const beta = greekToBetaCode(lemma);
-    console.log(beta);
-    
+
     if(body === undefined){
         setUndefined();
     }
@@ -16,7 +16,7 @@ async function getGreekMorph (lemma) { // fetches the given greek string from th
 
     let type;
     let returnArr = [];
-    if(Array.isArray(body)){
+    if(Array.isArray(body)){ // if multiple possible definitions, returns morphology array for each
         let subArr = [];
         for(let i = 0; i < body.length; i++){
             if(dataOut.RDF.Annotation.Body[i].rest.entry.infl[0] !== undefined){
@@ -28,17 +28,18 @@ async function getGreekMorph (lemma) { // fetches the given greek string from th
             let headWord = dataOut.RDF.Annotation.Body[i].rest.entry.dict.hdwd.$;
             let fixedHead = headWord.replace(/[1-9]/g, '');
             const inflect = getGreekInflections(inflections, type);
-            const dict = await getDict(fixedHead);
+            const shortDict = await getWikiGreek(fixedHead);
+            const longDict = await getPerseusGreek(fixedHead);
 
-            if(inflect === undefined){
-                subArr = [fixedHead, type, dict];
+            if(inflect === undefined){ //if no inflections present, returns array without inflections. may not be necessary once all types set in getGreekInflection();
+                subArr = [fixedHead, type, shortDict, longDict];
             } else {
-                subArr = [fixedHead, type, inflect, dict];
+                subArr = [fixedHead, type, inflect, shortDict, longDict];
             }
             returnArr.push(subArr);
         }
-        return returnArr;
-    } else {
+        return returnArr; //full array of word possibilities
+    } else { //if there is only one headword possible
         
         if(dataOut.RDF.Annotation.Body.rest.entry.infl[0] !== undefined){
             type = (dataOut.RDF.Annotation.Body.rest.entry.infl[0].pofs.$);
@@ -50,19 +51,21 @@ async function getGreekMorph (lemma) { // fetches the given greek string from th
         let headWord = dataOut.RDF.Annotation.Body.rest.entry.dict.hdwd.$;
         let fixedHead = headWord.replace(/[1-9]/g, '');
         const inflect = getGreekInflections(inflections, type);
-        const dict = await getDict(fixedHead);
+        const shortDict = await getWikiGreek(fixedHead);
+        const longDict = await getPerseusGreek(fixedHead);
 
-        if(inflect === undefined){
-            return [fixedHead, type, dict];
+        if(inflect === undefined){ // same as if multiple headwords possible. may not be necessary
+            return [fixedHead, type, shortDict, longDict];
         } else {
-            return [fixedHead, type, inflect, dict];
+            return [fixedHead, type, inflect, shortDict, longDict];
         }   
     }
 };
+
 const getGreekInflections = (inflectArr, type) => { // returns an array in which each element is itself an array of the dialect type and inflection pattern
     
-    if (type === 'verb') {
-        if(Array.isArray(inflectArr)){
+    if (type === 'verb') { //all other if statements contain similar code that will change what is returned in the array, depending on word type.
+        if(Array.isArray(inflectArr)){ // if multiple inflection possibilities, returns array of all possible inflections. 
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
                     
@@ -203,7 +206,8 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
 
     }
 };
-async function getDict (lemma) {
+
+async function getWikiGreek (lemma) { // fetches the wiktionary definition for 
     const dictEntry = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${lemma}`, {mode: 'cors'});
     const entryOut = await dictEntry.json();
     
@@ -237,5 +241,17 @@ async function getDict (lemma) {
     }
     return "Definition Not Found";
 };
+
+async function getPerseusGreek(lemma) {
+    const beta = greekToBetaCode(lemma);
+    console.log(beta);
+    let dataAsJson = {};
+    const data = await fetch(`http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0058%3Aentry%3D${beta}`);
+    const textDat = await data.text();
+    dataAsJson = JSON.parse(convert.xml2json(textDat, {compact: true, spaces: 4}));
+    console.log(dataAsJson);
+    //need to do some pretty serious parsing here. This could take a while. 
+    return "Perseus Definition";
+}
 
 export {  getGreekMorph  };

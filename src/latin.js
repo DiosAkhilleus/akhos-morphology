@@ -19,7 +19,7 @@ async function getLatinMorph (lemma) {
             let fixedHead = headWord.replace(/[1-9]/g, '');
             const type = body[i].rest.entry.dict.pofs.$;
             const inflect = getLatinInflections(inflections, type);
-            const dict = await getDef(fixedHead);
+            const dict = await getWikiLatin(fixedHead);
             
             let setArr = [fixedHead, type, inflect, dict]
             let check = false; 
@@ -44,7 +44,7 @@ async function getLatinMorph (lemma) {
         //console.log(fixedHead);
         const type = body.rest.entry.dict.pofs.$;
         const inflect = getLatinInflections(inflections, type);
-        const dict = await getDef(fixedHead);
+        const dict = await getWikiLatin(fixedHead);
         
         return [fixedHead, type, inflect, dict];
     }
@@ -147,7 +147,7 @@ const getLatinInflections = (inflections, type) => {
         return ['not inflected'];
     }
 }
-async function getDef (lemma) {
+async function getWikiLatin (lemma) {
     const latinDef = await fetch (`https://en.wiktionary.org/api/rest_v1/page/definition/${lemma}?redirect=true`);
     const defOut = await latinDef.json();
     const defOut_Latin = defOut.la[0];
@@ -163,5 +163,14 @@ async function getDef (lemma) {
 
     return sumDef;
 }
+async function getPerseusLatin(lemma) {
+    let dataAsJson = {};
+    const data = await fetch(`http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0060%3Aentry%3D${lemma}`);
+    const textDat = await data.text();
+    dataAsJson = JSON.parse(convert.xml2json(textDat));
+    console.log(dataAsJson);
+    //need to do some pretty serious parsing here. This could take a while.
+    return "Perseus Definition";
+}
 
-export {  getLatinMorph, getDef  }
+export {  getLatinMorph  }
