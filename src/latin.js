@@ -1,4 +1,5 @@
 import { setUndefined } from "./dom";
+const convert = require('xml-js');
 
 async function getLatinMorph (lemma) {
     const latinData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=lat&engine=morpheuslat&word=${lemma}`, {mode: 'cors'})
@@ -20,8 +21,9 @@ async function getLatinMorph (lemma) {
             const type = body[i].rest.entry.dict.pofs.$;
             const inflect = getLatinInflections(inflections, type);
             const dict = await getWikiLatin(fixedHead);
+            const longDict = await getPerseusLatin(fixedHead);
             
-            let setArr = [fixedHead, type, inflect, dict]
+            let setArr = [fixedHead, type, inflect, dict, longDict];
             let check = false; 
             //console.log(setArr);
             
@@ -45,8 +47,9 @@ async function getLatinMorph (lemma) {
         const type = body.rest.entry.dict.pofs.$;
         const inflect = getLatinInflections(inflections, type);
         const dict = await getWikiLatin(fixedHead);
+        const longDict = await getPerseusLatin(fixedHead);
         
-        return [fixedHead, type, inflect, dict];
+        return [fixedHead, type, inflect, dict, longDict];
     }
 }
 const getLatinInflections = (inflections, type) => {
@@ -170,7 +173,7 @@ async function getPerseusLatin(lemma) {
     dataAsJson = JSON.parse(convert.xml2json(textDat));
     console.log(dataAsJson);
     //need to do some pretty serious parsing here. This could take a while.
-    return "Perseus Definition";
+    return "Elementary Lewis Dict. Definition";
 }
 
 export {  getLatinMorph  }
