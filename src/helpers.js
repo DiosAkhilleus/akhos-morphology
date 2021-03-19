@@ -13,5 +13,20 @@ function arraysEqual(a, b) {
     }
     return true;
   }
+
+async function getXML () {
+    let x = new XMLHttpRequest();
+    x.open("GET", "http://www.perseus.tufts.edu/hopper/xmlchunk?doc=Perseus%3Atext%3A1999.04.0060%3Aentry%3Dfrequenter", true);
+    x.onreadystatechange = function () {
+        if (x.readyState == 4 && x.status == 200) {
+            let doc = x.responseXML;
+            console.log(doc);
+            let nodeList = doc.getElementsByTagName('text');
+            console.log(nodeList[0].innerHTML);
+            document.getElementById('xml').innerHTML = nodeList[0].innerHTML;
+        }
+    };
+x.send(null);
+} 
   
-  export { arraysEqual }
+  export { arraysEqual, getXML }

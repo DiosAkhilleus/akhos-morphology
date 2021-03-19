@@ -1,15 +1,18 @@
 import {  setUndefined  } from './dom';
+import {  greekToBetaCode, betaCodeToGreek  } from 'beta-code-js';
 
 async function getGreekMorph (lemma) { // fetches the given greek string from the morphology service
     const greekData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=grc&engine=morpheusgrc&word=${lemma}`, {mode: 'cors'});
     const dataOut = await greekData.json();
     const body = dataOut.RDF.Annotation.Body;
-
+    const beta = greekToBetaCode(lemma);
+    console.log(beta);
+    
     if(body === undefined){
         setUndefined();
     }
 
-    //console.log(dataOut);
+    console.log(dataOut);
 
     let type;
     let returnArr = [];
@@ -58,7 +61,7 @@ async function getGreekMorph (lemma) { // fetches the given greek string from th
 };
 const getGreekInflections = (inflectArr, type) => { // returns an array in which each element is itself an array of the dialect type and inflection pattern
     
-    if (type === 'verb'){
+    if (type === 'verb') {
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -89,7 +92,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
                 return ['attic', `${person} person ${number} ${tense} ${voice} ${mood}`];
             }
         }
-    } else if (type === 'verb participle'){
+    } else if (type === 'verb participle') {
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -119,7 +122,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
                 return ['attic', `${gender} ${number} ${tense} ${voice} ${mood}`];
             }
         }
-    } else if (type === 'noun'){
+    } else if (type === 'noun') {
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -147,7 +150,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         }else {
             return ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
         }
-    } else if (type === 'adjective'){
+    } else if (type === 'adjective') {
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -175,7 +178,7 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         }else {
             return ['attic', `${gender} ${nCase} ${number}`, `${declension} declension`];
         }
-    } else if (type === 'pronoun'){
+    } else if (type === 'pronoun') {
         if(Array.isArray(inflectArr)){
             let combinedArr = [];
                 for(let i = 0; i < inflectArr.length; i++){
@@ -194,6 +197,10 @@ const getGreekInflections = (inflectArr, type) => { // returns an array in which
         let nCase = inflectArr.case.$;
         let number = inflectArr.num.$;
         return [`${person} person ${gender} ${nCase} ${number}`];
+    } else if (type === 'article') {
+
+    } else if (type === 'particle') {
+
     }
 };
 async function getDict (lemma) {

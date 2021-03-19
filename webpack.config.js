@@ -7,4 +7,14 @@ module.exports = {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  resolve: {
+    fallback: {
+      "stream": require.resolve("stream-browserify"),
+      "buffer": require.resolve("buffer/"),
+      "timers": require.resolve("timers-browserify")
+      
+    }
+    // configuration options
+  },
+  
 };

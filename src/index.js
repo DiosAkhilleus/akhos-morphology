@@ -46,3 +46,9 @@ grkForm.addEventListener('submit', handleForm);
 grkForm.addEventListener('submit', getGreek);
 latForm.addEventListener('submit', handleForm);
 latForm.addEventListener('submit', getLatin);
+
+
+
+
+
+//getXML();
