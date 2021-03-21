@@ -1,6 +1,23 @@
 import { setUndefined } from "./dom";
 const convert = require('xml-js');
 
+async function getLatin (lemma) {
+    
+    let lemmaArr = lemma.split(' ');
+    
+    if(lemmaArr.length === 1){
+        const morph = await getLatinMorph(lemmaArr[0]);
+        console.log(morph); 
+    } else {
+        let allMorph = [];
+        for(let i = 0; i < lemmaArr.length; i++){
+            const subMorph = await getLatinMorph(lemmaArr[i]);
+            allMorph.push(subMorph);
+        }
+        console.log(allMorph);
+    }
+}
+
 async function getLatinMorph (lemma) {
     const latinData = await fetch(`http://services.perseids.org/bsp/morphologyservice/analysis/word?lang=lat&engine=morpheuslat&word=${lemma}`, {mode: 'cors'})
     const dataOut = await latinData.json();
@@ -9,11 +26,9 @@ async function getLatinMorph (lemma) {
     if (body === undefined) {
         setUndefined();
     }
-
-
     //console.log(dataOut);
     if(Array.isArray(body)) {
-        let retArr = [];
+        let retObj = {};
         for(let i = 0; i < body.length; i++){
             const inflections = body[i].rest.entry.infl;
             let headWord = body[i].rest.entry.dict.hdwd.$;
@@ -22,30 +37,46 @@ async function getLatinMorph (lemma) {
             const inflect = getLatinInflections(inflections, type);
             const shortDict = await getWikiLatin(fixedHead);
             const longDict = await getPerseusLatin(fixedHead);
-            let subArr = [];
+            let subObj = {};
             let check = false; 
 
             if(inflect === undefined){ // if word is not inflected, returns array without inflections (numerals, particles, etc.)
-                subArr = [fixedHead, type, shortDict, longDict];
+                subObj = {
+                    headword: fixedHead, 
+                    type: type, 
+                    inflections: [
+                        {
+                            inflections: "uninflected"
+                        }
+                    ], 
+                    shortDef: shortDict,
+                    longDef: longDict
+                };
             } else {
-                subArr = [fixedHead, type, inflect, shortDict, longDict];
+                subObj = {
+                    headword: fixedHead, 
+                    type: type, 
+                    inflections: inflect,
+                    shortDef: shortDict,
+                    longDef: longDict
+                };
             }
             
             //console.log(setArr);
             
-            for(let i = 0; i < retArr.length; i++) {
-                    if(JSON.stringify(subArr) === JSON.stringify(retArr[i])){
+            for(let i = 0; i < retObj.length; i++) {
+                    if(JSON.stringify(subObj) === JSON.stringify(retObj[i])){
                         check = true;
                     }
             }
             if(check === false) {
                 
-                retArr.push(subArr);
+                retObj[i] = (subObj);
             }
         }
         
 
-    return retArr;
+    return retObj;
     } else {
         const inflections = body.rest.entry.infl;
         let headWord = body.rest.entry.dict.hdwd.$;
@@ -57,9 +88,25 @@ async function getLatinMorph (lemma) {
         const longDict = await getPerseusLatin(fixedHead);
 
         if(inflect === undefined){ // as before, if word is not inflected, returns array without inflections (numerals, particles, etc.)
-            return [fixedHead, type, shortDict, longDict];
+            return {
+                headword: fixedHead, 
+                type: type, 
+                inflections: [
+                    {
+                        inflection: 'uninflected'
+                    }
+                ], 
+                shortDef: shortDict,
+                longDef: longDict
+            };
         } else {
-            return [fixedHead, type, inflect, shortDict, longDict];
+            return {   
+                headword: fixedHead,
+                type: type,
+                inflections: inflect,
+                shortDef: shortDict,
+                longDef: longDict
+            };
         }  
     }
 }
@@ -199,4 +246,4 @@ async function getPerseusLatin(lemma) {
 
 }
 
-export {  getLatinMorph  }
+export default getLatin
