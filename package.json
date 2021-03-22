@@ -2,6 +2,7 @@
   "dependencies": {
     "beta-code-js": "^2.0.2",
     "buffer": "^6.0.3",
+    "flat": "^5.0.2",
     "stream-browserify": "^3.0.0",
     "timers-browserify": "^2.0.12",
     "xml-js": "^1.6.11",
